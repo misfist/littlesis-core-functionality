@@ -62,11 +62,16 @@ class LittleSis_Admin {
 		$this->version = $version;
 
 		$this->add_options_page();
-		$this->add_fields();
+		$this->add_options_fields();
 
 		if( is_admin() ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		}
+
+		/**
+		 * Add JS to admin head for ACF
+		 */
+		add_action( 'acf/input/admin_head', array( $this, 'admin_head' ) );
 
 		add_filter( 'mce_buttons_2', array( $this, 'customize_wysiwyg_buttons' ) );
 
@@ -97,7 +102,7 @@ class LittleSis_Admin {
 	 *
 	 * @uses acf_add_local_field_group()
 	 */
-	public function add_fields() {
+	public function add_options_fields() {
 
 		if( function_exists( 'acf_add_local_field_group' ) ) {
 			acf_add_local_field_group( array(
@@ -150,6 +155,27 @@ class LittleSis_Admin {
 	}
 
 	/**
+	 * Add Scripts to ACF Head
+	 * @return [type] [description]
+	 */
+	public function admin_head() {
+		?>
+		 <script type="text/javascript">
+		 (function($) {
+
+				 $(document).ready(function(){
+
+						 $('#coauthorsdiv').insertAfter( '#submitdiv' );
+
+				 });
+
+		 })(jQuery);
+		 </script>
+		 <style type="text/css"></style>
+	 <?php
+	}
+
+	/**
 	 * Get Settings
 	 * Get the name of the settings
 	 *
@@ -199,24 +225,6 @@ class LittleSis_Admin {
 		 * class.
 		 */
 		wp_enqueue_script( $this->plugin_name, LITTLESIS_CORE_DIR_URL . 'assets/js/admin.js', array( 'jquery-chosen' ), $this->version, false );
-	}
-
-	/**
-	 * Create Quicktags
-	 *
-	 * @since 1.0.3
-	 *
-	 * @uses admin_print_footer_script
-	 * @link https://codex.wordpress.org/Quicktags_API
-	 *
-	 * @return void
-	 */
-	public function quicktags() {
-		if ( wp_script_is( 'quicktags' ) ) { ?>
-
-
-		<?php
-		}
 	}
 
 	/**
