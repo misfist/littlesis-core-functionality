@@ -113,6 +113,10 @@ class LittleSis_Core {
 			$this->admin = new LittleSis_Admin( $this->_token, $this->_version );
 		}
 
+		new LittleSis_Core_Customization( $this->_version );
+
+		new LittleSis_Core_Related_Posts();
+
 		// Handle localisation
 		$this->load_plugin_textdomain();
 		add_action( 'init', array( $this, 'load_localisation' ), 0 );
