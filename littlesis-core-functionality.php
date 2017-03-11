@@ -7,7 +7,7 @@
  * Author URI:      https://github.com/misfist
  * Text Domain:     littlesis-core
  * Domain Path:     /languages
- * Version:         0.1.0
+ * Version:         0.1.2
  *
  * @package         Littlesis_Core_Functionality
  */
@@ -22,7 +22,16 @@
 define( 'LITTLESIS_CORE_DIR', dirname( __FILE__ ) );
 define( 'LITTLESIS_CORE_DIR_URL', plugin_dir_url( __FILE__ ) );
 
+require_once( 'includes/class-littlesis-core-template-loader.php' );
+
+require_once( 'includes/helpers.php' );
+
+require_once( 'includes/class-littlesis-core-related-posts.php' );
+require_once( 'includes/class-littlesis-core-customizations.php' );
 require_once( 'includes/class-littlesis-core.php' );
+
+require_once( 'includes/template-tags.php' );
+
 require_once( 'admin/class-littlesis-core-admin.php' );
 
 /**
@@ -31,10 +40,10 @@ require_once( 'admin/class-littlesis-core-admin.php' );
  * @since  0.1.0
  * @return object LittleSis
  */
-function LittleSis_Core() {
-  $instance = LittleSis_Core::instance( __FILE__, '0.1.0' );
+function littlesis_core() {
+  $instance = LittleSis_Core::instance( __FILE__, '0.1.2' );
 
  	return $instance;
 }
 
-LittleSis_Core();
+littlesis_core();

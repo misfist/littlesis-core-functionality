@@ -1,6 +1,6 @@
 <?php
 /**
- * LittleSis Core Helper Functions
+ * LittleSis Core Helpers
  *
  * @package    LittleSis_Core
  * @subpackage LittleSis_Core\Includes
