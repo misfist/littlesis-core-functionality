@@ -3,7 +3,7 @@ Contributors: misfist
 Tags:
 Requires at least: 3.7
 Tested up to: 4.7.2
-Version: 0.1.2
+Version: 0.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,6 +24,10 @@ e.g.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+
+= 0.1.3 March 18, 2017 =
+* Modified related post logic and ensured returned items are unique
+* Fixed error when no related posts were found
 
 = 0.1.2 March 7, 2017 =
 * Added related posts fields and template tags

@@ -51,7 +51,7 @@ function littlesis_core_related_posts( $post_id = null, $posts_per_page = 3 ) {
 
   $related_posts_template = new LittleSis_Template_Loader;
 
-  if( !empty( $related_posts ) || !is_wp_error( $related_posts ) ) {
+  if( !empty( $related_posts ) && !is_wp_error( $related_posts ) ) {
 
     $related_posts_template->set_template_data( $related_posts );
     $related_posts_template->get_template_part( 'related-posts' );
@@ -59,5 +59,4 @@ function littlesis_core_related_posts( $post_id = null, $posts_per_page = 3 ) {
   }
 
   return;
-
 }
