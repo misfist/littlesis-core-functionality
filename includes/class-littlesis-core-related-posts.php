@@ -176,50 +176,85 @@
            'posts_per_page'  => $posts_per_page
          );
 
-         /* Build related posts query */
 
-         // If there post is part of series, get the other posts in series
-         if( has_term( '', 'series', $post_id ) ) {
+         /* Create taxonomy query */
 
-           $terms = wp_get_post_terms( $post_id, 'series', array( 'fields' => 'ids' ) );
+         // If post has series and category terms
+         if( has_term( '', 'series', $post_id ) &&  has_term( '', 'category', $post_id ) ) {
 
-           $args['tax_query'][] = array(
-             'taxonomy'          => 'series',
-             'terms'             => $terms,
+           $series = wp_get_post_terms( $post_id, 'series', array( 'fields' => 'ids' ) );
+           $categories = wp_get_post_terms( $post_id, 'category', array( 'fields' => 'ids' ) );
+
+           $tax_query = array(
+             'relation' => 'OR',
+             array(
+               'taxonomy'          => 'series',
+               'terms'             => $series,
+               'field'             => 'term_id'
+             ),
+             array(
+               'taxonomy'          => 'category',
+               'terms'             => $categories,
+               'field'             => 'term_id'
+             )
+           );
+         // If post has only series terms
+         } elseif( has_term( '', 'series', $post_id ) ) {
+
+           $series = wp_get_post_terms( $post_id, 'series', array( 'fields' => 'ids' ) );
+           $tax_query[] =  array(
+              'taxonomy'          => 'series',
+              'terms'             => $series,
+              'field'             => 'term_id'
+            );
+
+         // If post has only category terms
+         } elseif( has_term( '', 'category', $post_id ) ) {
+
+           $categories = wp_get_post_terms( $post_id, 'category', array( 'fields' => 'ids' ) );
+           $tax_query[] =  array(
+             'taxonomy'          => 'category',
+             'terms'             => $categories,
              'field'             => 'term_id'
            );
 
-           $posts = get_posts( $args );
+         }
+
+         if( isset( $tax_query ) ) {
+           $args['tax_query'] = $tax_query;
+         }
+
+         // If has series term
+         if( has_term( '', 'series', $post_id ) ) {
+
+           $series = wp_get_post_terms( $post_id, 'series', array( 'fields' => 'ids' ) );
+
+           $series_args = array(
+             'taxonomy'          => 'series',
+             'terms'             => $series,
+             'field'             => 'term_id'
+           );
 
          }
 
          // If post is not part of series OR there are fewer than 4 (don't count current post), get the categories
-         if( !isset( $terms ) || ( ( !empty( $terms ) && !is_wp_error( $terms ) ) && ( count( $terms ) < ( $posts_per_page + 1 ) ) ) ) {
-           if( has_term( '', 'category', $post_id ) ) {
+         if( !isset( $series ) || ( ( !empty( $series ) && !is_wp_error( $series ) ) && ( count( $series ) < ( $posts_per_page + 1 ) ) ) ) {
 
+           if( has_term( '', 'category', $post_id ) ) {
              $categories = wp_get_post_terms( $post_id, 'category', array( 'fields' => 'ids' ) );
 
-             $args = array(
-               'category__in'    => $categories,
-               'exclude'         => $post_id,
-               'posts_per_page'  => $posts_per_page
+             $series_args = array(
+               'taxonomy'          => 'category',
+               'terms'             => $categories,
+               'field'             => 'term_id'
              );
-
-             $category_posts = get_posts( $args );
-
-             if( isset( $posts ) && ( !empty( $posts ) && !is_wp_error( $posts ) ) ) {
-               $category_posts = array_merge( $posts, $category_posts );
-             }
-
-             $posts = array_slice( $category_posts, 0, $posts_per_page );
-
-           } else {
-
-             return new WP_Error( 'no_post_terms', __( 'No series or category terms exist for post ' . $post_id, 'littlesis-core' ) );
 
            }
 
          }
+
+         // Get the posts
+         $posts = get_posts( $args );
 
          if( empty( $posts ) || is_wp_error( $posts ) ) {
            return new WP_Error( 'no_posts', __( 'No posts were found for this category', 'littlesis-core' ) );
@@ -267,7 +302,8 @@
 
          $auto_posts = self::get_auto_related_posts( $post_id );
          $merged = array_merge( $related_posts, $auto_posts );
-         $related_posts = array_slice( $merged, 0, $posts_per_page );
+
+         $related_posts = array_slice( array_unique( $merged ), 0, $posts_per_page );
 
        }
 
