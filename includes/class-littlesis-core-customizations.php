@@ -21,7 +21,12 @@ class LittleSis_Core_Customization {
 	public $_version;
 
 	public function __construct( $version ) {
-		add_filter( 'list_terms_exclusions', array( $this, 'list_terms_exclusions' ), 10, 2 );
+		/**
+		 * Commented Out
+		 * This filter is causing a fatal memory exhaustion error
+		 * @since 0.1.4
+		 */
+		//add_filter( 'list_terms_exclusions', array( $this, 'list_terms_exclusions' ), 10, 2 );
 
 		/**
 		 * Allow Shortcodes in Series Description

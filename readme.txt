@@ -3,7 +3,7 @@ Contributors: misfist
 Tags:
 Requires at least: 3.7
 Tested up to: 4.7.2
-Version: 0.1.3
+Version: 0.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,6 +24,9 @@ e.g.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+
+= 0.1.4 May 1, 2017 =
+* Disabled `list_terms_exclusions` filter until I can identify why it's breaking the site
 
 = 0.1.3 March 18, 2017 =
 * Modified related post logic and ensured returned items are unique
