@@ -21,12 +21,6 @@ class LittleSis_Core_Customization {
 	public $_version;
 
 	public function __construct( $version ) {
-		/**
-		 * Commented Out
-		 * This filter is causing a fatal memory exhaustion error
-		 * @since 0.1.4
-		 */
-		//add_filter( 'list_terms_exclusions', array( $this, 'list_terms_exclusions' ), 10, 2 );
 
 		/**
 		 * Allow Shortcodes in Series Description
@@ -36,7 +30,16 @@ class LittleSis_Core_Customization {
 
 		add_action( 'init', array( $this, 'add_shortcodes' ) );
 
-		$this->register_shortcode_ui();
+		/**
+		 * 
+		 */
+		add_action( 'init', function() {
+			wp_embed_register_handler( 
+				'oligarcher', 
+				'#https:\/\/littlesis\.org/maps\/([a-z0-9_-]+)\/embedded\/v2$#i', 
+				array( $this, 'embed_register_handler' ) );
+
+		} );
 
 	}
 
@@ -56,10 +59,33 @@ class LittleSis_Core_Customization {
 	}
 
 	/**
+	 * Register oEmbed
+	 *
+	 * @see https://developer.wordpress.org/reference/functions/wp_embed_register_handler/
+	 * 
+	 * @since 0.1.5
+	 *
+	 * @param string $matches
+	 * @param array $attr
+	 * @param $url
+	 * @param $rawattr
+	 * @return string
+	 */
+	public function embed_register_handler(  $matches, $attr, $url, $rawattr ) {
+		$embed = sprintf( 
+			'<iframe src="https://littlesis.org/maps/%1$s/embedded/v2" data-src="https://littlesis.org/maps/%1$s/embedded/v2" height="600" width="100&#37;" scrolling="no"></iframe>',
+			esc_attr( $matches[1] ),
+			esc_attr( $matches[1] )
+		);
+
+		return apply_filters( 'embed_oligarcher', $embed, $matches, $attr, $url, $rawattr );
+	}
+
+	/**
 	 * Embed iframe shortcode
 	 * Adds shortcode that outputs iframe markup
 	 *
-	 * `[embed-iframe embed_url="https://url.org/embedded" link_url="embed_url="https://url.org" link_text="View Map on LittleSis"]`
+	 * `[embed-iframe embed_url="https://url.org/embedded"]`
 	 *
 	 * @since 0.1.2
 	 *
@@ -72,108 +98,16 @@ class LittleSis_Core_Customization {
 	 */
 	public function iframe_embed_shortcode( $atts, $content = null, $shortcode_tag ) {
 		extract( shortcode_atts( array(
-			'embed_url'      => '',
-			'link_url'       => '',
-			'link_text'      => __( 'View This Map on LittleSis', 'littlesis-core' )
+			'embed_url'      => ''
 		), $atts, $shortcode_tag ));
 
-		$html = sprintf(  '<div class="iframe-container"><iframe src="%s" data-src="%s" height="600" scrolling="no"></iframe></div><p class="source-link"><a href="%s" class="btn btn-primary" target="_blank">%s</a></p>',
+		$html = sprintf(  '<iframe src="%s" data-src="%s" width="100&#37;" height="600" scrolling="no"></iframe>',
 			esc_url( $embed_url ),
-			esc_url( $embed_url ),
-			esc_url( $link_url ),
-			esc_attr( $link_text )
+			esc_url( $embed_url )
 		);
 
 		/* Enable modifying the output outside of this plugin */
-		return apply_filters( 'littlesis_embed_iframe_ouput', $html, $embed_url, $link_url, $link_text );
-	}
-
-	/**
-	 * Add Register Shortcode UI Action
-	 *
-	 * @since 0.1.2
-	 *
-	 * @return void
-	 */
-	public function register_shortcode_ui() {
-		add_action( 'register_shortcode_ui', array( $this, 'iframe_embed_shortcode_ui' ) );
-	}
-
-	/**
-	 * Create Shortcode UI
-	 * Adds UI interface for `[embed-iframe]` shortcode
-	 *
-	 * @since 0.1.2
-	 *
-	 * @access public
-	 *
-	 * @uses shortcode_ui_register_for_shortcode()
-	 *
-	 * @return void
-	 */
-	public function iframe_embed_shortcode_ui() {
-
-		$fields = array(
-			array(
-				'label'  => esc_html__( 'Embed URL', 'littlesis-core' ),
-				'attr'   => 'embed_url',
-				'type'   => 'url',
-				'encode' => false,
-				'meta'   => array(
-					'placeholder' => esc_html__( 'https://url.org/embedded', 'littlesis-core' ),
-					'data-test'   => 1,
-				),
-			),
-			array(
-				'label'  => esc_html__( 'Link URL', 'littlesis-core' ),
-				'attr'   => 'link_url',
-				'type'   => 'url',
-				'encode' => false,
-				'meta'   => array(
-					'placeholder' => esc_html__( 'https://url.org', 'littlesis-core' ),
-					'data-test'   => 1,
-				),
-			),
-			array(
-				'label'  => esc_html__( 'Link Text', 'littlesis-core' ),
-				'attr'   => 'link_text',
-				'type'   => 'text',
-				'encode' => false,
-				'meta'   => array(
-					'placeholder' => esc_html__( 'View Map on LittleSis', 'littlesis-core' ),
-					'data-test'   => 1,
-				),
-			),
-		);
-
-		$args = array(
-			'label' 					=> esc_html__( 'Embed iframe', 'littlesis-core' ),
-			'listItemImage' 	=> 'dashicons-media-code',
-			'post_type'				=> array( 'post' ),
-			'attrs' 					=> $fields,
-		);
-
-		/* Enable modifying arguments outside of this plugin */
-	 	shortcode_ui_register_for_shortcode( 'embed-iframe', $args );
-	 }
-
-	/**
-	 * Remove Uncategorized for Category Terms Lists
-	 *
-	 * @since 0.1.2
-	 *
-	 * @uses list_terms_exclusions filter hook
-	 * @link https://developer.wordpress.org/reference/hooks/list_terms_exclusions/
-	 *
-	 * @param  string $exclusion
-	 * @param  array $args
-	 * @param  array $taxonomies
-	 * @return string $exclusions
-	 */
-	function list_terms_exclusions( $exclusions, $args ) {
-	  $children = implode( ',', get_term_children( 1, 'category' ) );
-	  $children = ( empty( $children ) ? '' : ",$children" );
-	  return $exclusions . " AND (t.term_id NOT IN (1{$children}))";
+		return apply_filters( 'littlesis_embed_iframe_ouput', $html, $embed_url );
 	}
 
 }
