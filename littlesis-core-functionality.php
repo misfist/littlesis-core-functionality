@@ -7,7 +7,7 @@
  * Author URI:      https://github.com/misfist
  * Text Domain:     littlesis-core
  * Domain Path:     /languages
- * Version:         0.1.4
+ * Version:         0.1.5
  *
  * @package         Littlesis_Core_Functionality
  */
@@ -41,7 +41,7 @@ require_once( 'admin/class-littlesis-core-admin.php' );
  * @return object LittleSis
  */
 function littlesis_core() {
-  $instance = LittleSis_Core::instance( __FILE__, '0.1.4' );
+  $instance = LittleSis_Core::instance( __FILE__, '0.1.5' );
 
  	return $instance;
 }
